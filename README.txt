@@ -17,8 +17,10 @@ Install on your iPhone
      after the first load.
 
 Tips
+  - Each round goes through every exercise once, then rests and repeats for the next set.
   - Turn the silent switch off so the voice countdown is audible.
   - Tap START once so Safari allows speech.
-  - REP PACE (1-10 s per rep) and GET READY (1-60 s between exercises) are the two wheels beside START.
+  - Every setting is a looping scroll wheel. REP PACE (0.1-5.0 s per rep) and GET READY
+    (1-60 s between exercises) sit either side of START. Tap an exercise name for its reps wheel.
   - The PLANK wheel sets the hold time for every plank (PLAN keeps each plank's own time).
   - Your sets, rest, plank, pace, get-ready and custom reps are saved on the phone.

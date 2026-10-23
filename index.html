@@ -13,20 +13,21 @@
 <style>html{background:#171b22;-webkit-text-size-adjust:100%}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;overscroll-behavior-y:none}</style>
 <title>Kettlebell Timer</title>
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500&display=swap">
 <style>
-/* Layout: one narrow column built for a phone held in one hand. Sticky ticker, day chips, three dials, one big 3D button, transport row, session list. */
+/* Layout: one narrow column built for a phone held in one hand. Sticky ticker tape, day chips, three drum wheels, one big 3D button flanked by two wheels, transport row, session list. Type is a thin Helvetica Neue Light style with big light numerals. */
 :root{
   --bg:#171b22; --panel:#1f242d; --panel2:#262c37; --ink:#e9edf3; --muted:#8d97a6; --on:#10131a;
   --work:#ff7a35;--pace:#f0b43a; --rest:#3fa8ff; --blank:#b9a4ff; --done:#4cd08a;
-  --fd:'Barlow Condensed','Arial Narrow',Impact,sans-serif;
-  --fb:'Barlow Semi Condensed','Helvetica Neue',Arial,sans-serif;
+  --plank:#ff7fa6;
+  --fd:'Helvetica Neue','HelveticaNeue-Light','Helvetica Neue Light','Roboto',Helvetica,Arial,sans-serif;
+  --fb:'Helvetica Neue','HelveticaNeue-Light','Helvetica Neue Light','Roboto',Helvetica,Arial,sans-serif;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{height:auto}
 body{
-  background:var(--bg); color:var(--ink); font:500 16px/1.35 var(--fb);
+  background:var(--bg); color:var(--ink); font:400 16px/1.35 var(--fb);
   padding-left:max(16px,env(safe-area-inset-left,0px));
   padding-right:max(16px,env(safe-area-inset-right,0px));
   padding-block:0 48px; margin:0; -webkit-user-select:none; user-select:none;
@@ -40,20 +41,22 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .tick::before{left:0;background:linear-gradient(90deg,#05070a,transparent)}
 .tick::after{right:0;background:linear-gradient(270deg,#05070a,transparent)}
 .tickin{display:inline-flex;white-space:nowrap;will-change:transform;transform:translate3d(0,0,0)}
-.seg{display:inline-flex;align-items:center;gap:10px;padding-right:6px;font:700 20px/1 var(--fd);letter-spacing:.05em;text-transform:uppercase}
+.seg{display:inline-flex;align-items:center;gap:10px;padding-right:6px;font:500 20px/1 var(--fd);letter-spacing:.05em;text-transform:uppercase}
 .seg .tg{font-style:normal;font-size:13px;letter-spacing:.16em;padding:5px 8px 4px;border-radius:6px;background:#3a4252;color:#e9edf3}
 .seg .tg.now{background:var(--work);color:#10131a}
 .seg .tg.next{background:var(--rest);color:#10131a}
 .seg .tg.rest{background:var(--rest);color:#10131a}
 .seg .tg.go{background:var(--done);color:#10131a}
 .seg .tg.rdy{background:var(--blank);color:#10131a}
+.seg .tg.q{background:transparent;border:1px solid #4a5465;color:var(--ink);padding:4px 7px 3px;letter-spacing:.1em}
+.seg .mut{color:var(--muted);font-size:15px}
 .seg .arr{color:var(--muted);font-style:normal}
 .seg .dia{color:var(--work);font-style:normal;padding:0 16px}
 
 /* 3D buttons */
 .btn{
   appearance:none;border:0;color:var(--ink);cursor:pointer;
-  font:700 16px/1 var(--fd);letter-spacing:.12em;text-transform:uppercase;
+  font:500 16px/1 var(--fd);letter-spacing:.12em;text-transform:uppercase;
   padding:15px 8px;border-radius:14px;
   background:linear-gradient(180deg,#566176 0%,#3d4656 55%,#323a48 100%);
   box-shadow:0 6px 0 #1b2029,0 12px 14px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.3),inset 0 -2px 5px rgba(0,0,0,.28);
@@ -70,39 +73,34 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .days .btn{font-size:20px;padding:12px 0}
 .head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .head>div{min-width:0}
-.head h1{font:800 30px/1.05 var(--fd);letter-spacing:.02em;text-transform:uppercase;margin:0;text-wrap:balance}
+.head h1{font:300 30px/1.05 var(--fd);letter-spacing:.02em;text-transform:uppercase;margin:0;text-wrap:balance}
 .head .btn{flex:none;padding:10px 13px;font-size:15px;border-radius:11px;box-shadow:0 4px 0 #1b2029,0 8px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.28)}
 .head .btn:active,.head .btn.on{transform:translateY(3px);box-shadow:0 1px 0 #1b2029,inset 0 1px 0 rgba(255,255,255,.2)}
 .head p{margin:4px 0 0;color:var(--muted);font-size:15px}
 
-/* dials */
-.dials{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:var(--panel);border-radius:18px;padding:14px 8px 16px;box-shadow:inset 0 2px 6px rgba(0,0,0,.4),0 1px 0 rgba(255,255,255,.05)}
-.dial{display:flex;flex-direction:column;align-items:center;min-width:0}
-.dial svg{width:100%;max-width:128px;touch-action:none;cursor:grab;overflow:visible}
-.dial .trk{fill:none;stroke:#10141a;stroke-width:11}
-.dial .arc{fill:none;stroke:var(--col);stroke-width:11;stroke-linecap:round}
-.dial .val{font:800 30px/1 var(--fd);fill:var(--ink);font-variant-numeric:tabular-nums}
-.dial .unit{font:600 11px/1 var(--fb);fill:var(--muted);letter-spacing:.14em}
-.dial .knob{filter:drop-shadow(0 3px 2px rgba(0,0,0,.6))}
-.dial .dot{fill:var(--col)}
-.dl{font:800 17px/1 var(--fd);letter-spacing:.14em;margin-top:2px;color:var(--col)}
-.dc{font-size:12px;color:var(--muted);margin:3px 0 8px;text-align:center}
-.pm{display:flex;gap:10px}
-
-.opts{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.opts .grp{display:flex;align-items:center;gap:8px}
-.opts .lab{font:700 15px/1 var(--fd);letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
-.opts .btn{padding:9px 12px;font-size:16px;border-radius:11px;box-shadow:0 4px 0 #1b2029,0 8px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.28)}
-.opts .btn:active,.opts .btn.on{transform:translateY(3px);box-shadow:0 1px 0 #1b2029,inset 0 1px 0 rgba(255,255,255,.2)}
+/* drum wheels: iPhone style looping pickers */
+.wheels{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;background:var(--panel);border-radius:18px;padding:12px 6px 12px;box-shadow:inset 0 2px 6px rgba(0,0,0,.4),0 1px 0 rgba(255,255,255,.05)}
+.wcol{min-width:0}
+.wcap{font:500 10px/1.15 var(--fd);letter-spacing:.05em;color:var(--col);text-align:center;margin-bottom:7px;text-transform:uppercase;white-space:nowrap}
+.wcap small{display:block;color:var(--muted);letter-spacing:.02em;font-size:9.5px;margin-top:3px;min-height:2.3em;text-transform:none;font-weight:400;white-space:normal;text-wrap:balance}
+.wheels .wi{font-size:28px}
+.wheels .wi.txt{font-size:17px}
+.wheels .wband{left:3px;right:3px}
+.wheel{position:relative;height:132px;border-radius:14px;background:linear-gradient(180deg,#05070a,#10141b 50%,#05070a);overflow:hidden;box-shadow:inset 0 3px 10px rgba(0,0,0,.85),0 1px 0 rgba(255,255,255,.08)}
+.wscroll{height:100%;overflow-y:auto;padding-block:44px;scroll-snap-type:y mandatory;scrollbar-width:none;overscroll-behavior:contain;outline-offset:-3px;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+.wscroll::-webkit-scrollbar{display:none}
+.wi{height:44px;display:grid;place-items:center;scroll-snap-align:center;font:200 34px/1 var(--fd);font-variant-numeric:tabular-nums;color:var(--ink);cursor:pointer;will-change:transform}
+.wi.txt{font-size:22px;font-weight:300;letter-spacing:.08em;text-transform:uppercase}
+.wi.sel{color:var(--col);font-weight:300}
+.wband{position:absolute;left:6px;right:6px;top:44px;height:44px;border-top:2px solid var(--col);border-bottom:2px solid var(--col);border-radius:10px;pointer-events:none;background:rgba(255,255,255,.05);z-index:1}
+.wheel::before,.wheel::after{content:"";position:absolute;left:0;right:0;height:38px;z-index:2;pointer-events:none}
+.wheel::before{top:0;background:linear-gradient(#05070a,transparent)}
+.wheel::after{bottom:0;background:linear-gradient(transparent,#05070a)}
+.wheel:focus-within{box-shadow:inset 0 3px 10px rgba(0,0,0,.85),0 0 0 2px var(--col)}
 
 /* main button */
 [hidden]{display:none!important}
-.stage{position:relative;display:grid;grid-template-columns:minmax(0,1fr) min(44vw,206px) minmax(0,1fr);align-items:center;gap:6px;padding:6px 0 26px}
-.stage .dial{align-self:center}
-.stage .dial .dl{font-size:15px;letter-spacing:.07em;text-align:center;margin-top:0}
-.stage .dial .dc{font-size:11px;line-height:1.15;margin:2px 0 7px;min-height:2.3em;max-width:90%}
-.stage .dial .pm{gap:6px}
-.stage .dial .btn.mini{min-width:34px;padding:7px 0;font-size:16px}
+.stage{position:relative;display:flex;justify-content:center;padding:4px 0 22px}
 .main.p-idle{--ct:#8ff0b6;--c:#2fbf71;--ce:#0f5c33;color:#06210f}
 .stage .main.s-armed{--ct:#ff9a94;--c:#e8454a;--ce:#7c1710;color:#fff}
 .stage .main.s-armed #mLab{animation:blink .5s steps(2,jump-none) infinite}
@@ -110,35 +108,36 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 @media (prefers-reduced-motion:reduce){.stage .main.s-armed #mLab{animation:none}}
 .main{
   --c:#59647a;--ct:#7d889e;--ce:#2a313d;--p:0;
-  position:relative;width:100%;aspect-ratio:1;border:0;border-radius:50%;cursor:pointer;color:var(--ink);
+  position:relative;width:min(84vw,400px);max-width:100%;aspect-ratio:1;border:0;border-radius:50%;cursor:pointer;color:var(--ink);
   background:radial-gradient(circle at 34% 24%,var(--ct),var(--c) 58%,var(--ce) 135%);
   box-shadow:0 12px 0 var(--ce),0 26px 30px rgba(0,0,0,.55),inset 0 3px 3px rgba(255,255,255,.4),inset 0 -12px 20px rgba(0,0,0,.3);
   transition:transform .06s,box-shadow .06s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0;
 }
 .main:active{transform:translateY(8px);box-shadow:0 4px 0 var(--ce),0 10px 14px rgba(0,0,0,.5),inset 0 3px 3px rgba(255,255,255,.3),inset 0 -12px 20px rgba(0,0,0,.3)}
-.main::before{content:"";position:absolute;inset:12px;border-radius:50%;pointer-events:none;
+.main::before{content:"";position:absolute;inset:14px;border-radius:50%;pointer-events:none;
   background:conic-gradient(rgba(16,19,26,.6) calc(var(--p)*1%),rgba(16,19,26,.14) 0);
-  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 9px));
-  mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 9px))}
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 13px),#000 calc(100% - 12px));
+  mask:radial-gradient(farthest-side,transparent calc(100% - 13px),#000 calc(100% - 12px))}
 .main>*{position:relative}
 .main.p-work{--ct:#ffb286;--c:#ff7a35;--ce:#a8430f;color:var(--on)}
 .main.p-rest{--ct:#8fcdff;--c:#3fa8ff;--ce:#1c5c94;color:var(--on)}
 .main.p-blank{--ct:#dccfff;--c:#b9a4ff;--ce:#6a58b0;color:var(--on)}
 .main.p-done{--ct:#9bedc0;--c:#4cd08a;--ce:#25794b;color:var(--on)}
-#mLab{font:800 21px/1 var(--fd);letter-spacing:.14em;text-transform:uppercase;padding-left:.14em}
-#mNum{font:800 66px/0.95 var(--fd);font-variant-numeric:tabular-nums}
-#mSub{font:600 12px/1.2 var(--fb);max-width:74%;text-align:center;opacity:.85}
+#mLab{font:400 min(5.8vw,25px)/1 var(--fd);letter-spacing:.14em;text-transform:uppercase;padding-left:.14em}
+#mNum{font:200 min(31vw,128px)/0.95 var(--fd);font-variant-numeric:tabular-nums}
+#mSub{font:500 min(3.7vw,15px)/1.25 var(--fb);max-width:76%;text-align:center;opacity:.85}
 
 .ctrl{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 
 /* list */
-.list h2{font:800 18px/1 var(--fd);letter-spacing:.16em;color:var(--muted);margin:0 0 10px;text-transform:uppercase}
+.list h2{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font:300 18px/1 var(--fd);letter-spacing:.16em;color:var(--muted);margin:0 0 10px;text-transform:uppercase}
+.list h2 #sinfo{color:var(--ink);font-weight:400;font-size:14px;letter-spacing:.06em}
 .list ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .list li{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:10px;background:var(--panel);border-radius:12px;padding:12px 12px;cursor:pointer;box-shadow:0 3px 0 #12161c;min-width:0}
-.list li .n{font:800 20px/1 var(--fd);color:var(--muted);text-align:center}
-.list li .t{font:600 18px/1.15 var(--fb);min-width:0;overflow-wrap:anywhere}
-.list li .r{font:700 17px/1 var(--fd);color:var(--muted);letter-spacing:.06em;white-space:nowrap}
+.list li .n{font:300 20px/1 var(--fd);color:var(--muted);text-align:center}
+.list li .t{font:500 18px/1.15 var(--fb);min-width:0;overflow-wrap:anywhere}
+.list li .r{font:500 17px/1 var(--fd);color:var(--muted);letter-spacing:.06em;white-space:nowrap}
 .list li.cur{background:var(--panel2);outline:2px solid var(--work)}
 .list li.cur .n{color:var(--work)}
 .list li.done .t{text-decoration:line-through;text-decoration-thickness:2px;color:var(--muted)}
@@ -157,11 +156,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   box-shadow:0 -10px 30px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;gap:12px;animation:rise .18s ease-out}
 @keyframes rise{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.card{animation:none}}
-.card h3{font:800 24px/1.1 var(--fd);letter-spacing:.04em;text-transform:uppercase;margin:0;text-align:center;text-wrap:balance}
+.card h3{font:300 24px/1.1 var(--fd);letter-spacing:.04em;text-transform:uppercase;margin:0;text-align:center;text-wrap:balance}
 .card .sub{margin:0;color:var(--muted);font-size:15px}
-#dReps{width:min(64vw,250px);--col:var(--work)}
-#dReps svg{max-width:250px}
-#dReps .val{font-size:34px}
+.wheel.big{width:min(52vw,190px);--col:var(--work)}
 .chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .chips .btn{padding:9px 13px;font-size:17px;border-radius:11px;box-shadow:0 4px 0 #1b2029,0 8px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.28)}
 .chips .btn:active,.chips .btn.on{transform:translateY(3px);box-shadow:0 1px 0 #1b2029,inset 0 1px 0 rgba(255,255,255,.2)}
@@ -170,31 +167,16 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .card .row .go:active{transform:translateY(4px);box-shadow:0 2px 0 #8e3a0d,inset 0 1px 0 rgba(255,255,255,.4)}
 </style>
 
-</head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <radialGradient id="kg" cx="35%" cy="28%" r="80%"><stop offset="0" stop-color="#f4f7fb"/><stop offset=".55" stop-color="#9aa6b8"/><stop offset="1" stop-color="#4b5568"/></radialGradient>
-    <radialGradient id="fg" cx="40%" cy="28%" r="85%"><stop offset="0" stop-color="#3a4352"/><stop offset=".6" stop-color="#262d38"/><stop offset="1" stop-color="#171c24"/></radialGradient>
-  </defs>
-</svg>
-
-<div class="app">
+</head><body><div class="app">
   <div class="tick" aria-live="off"><div class="tickin" id="tickin"></div></div>
 
   <div class="days" id="days" role="tablist" aria-label="Training day"></div>
   <div class="head"><div><h1 id="dayName"></h1><p id="dayNote"></p></div><button class="btn" id="voiceBtn">Voice on</button></div>
 
-  <section class="dials" aria-label="Timer settings">
-    <div class="dial" id="dSets" style="--col:var(--work)"></div>
-    <div class="dial" id="dRest" style="--col:var(--rest)"></div>
-    <div class="dial" id="dPlank" style="--col:var(--blank)"></div>
-  </section>
-
   <div class="stage">
-    <div class="dial side" id="dPace" style="--col:var(--pace)"></div>
     <button class="main p-idle" id="main" aria-label="Start, work, rest or stop. While running, tap once to arm STOP and again to end.">
       <span id="mLab">START</span><span id="mNum">GO</span><span id="mSub">Tap to begin</span>
     </button>
-    <div class="dial side" id="dReady" style="--col:var(--blank)"></div>
   </div>
 
   <div class="ctrl">
@@ -203,15 +185,23 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     <button class="btn" id="skip">Skip ⏭</button>
   </div>
 
-  <section class="list"><h2>Today's session</h2><ol id="list"></ol>
-    <p class="hint">Tap a name to set its reps (seconds for planks). Tap the number to jump to it. The Plank wheel overrides every plank hold.</p></section>
+  <section class="wheels" aria-label="Timer settings">
+    <div class="wcol" style="--col:var(--work)"><div class="wcap">Sets<small>rounds</small></div><div class="wheel" id="wSets"></div></div>
+    <div class="wcol" style="--col:var(--rest)"><div class="wcap">Rest<small>sec between sets</small></div><div class="wheel" id="wRest"></div></div>
+    <div class="wcol" style="--col:var(--plank)"><div class="wcap">Plank<small>sec hold time</small></div><div class="wheel" id="wPlank"></div></div>
+    <div class="wcol" style="--col:var(--pace)"><div class="wcap">Rep pace<small>sec per rep</small></div><div class="wheel" id="wPace"></div></div>
+    <div class="wcol" style="--col:var(--blank)"><div class="wcap">Get ready<small>sec between exercises</small></div><div class="wheel" id="wReady"></div></div>
+  </section>
+
+  <section class="list"><h2><span>Today's session</span><span id="sinfo"></span></h2><ol id="list"></ol>
+    <p class="hint">Each round runs every exercise once, then repeats for the next set. Tap a name to set its reps (seconds for planks), or a number to jump to it. The Plank wheel overrides every plank hold.</p></section>
 </div>
 
 <div class="sheet" id="sheet" hidden>
   <div class="card" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
     <h3 id="sheetTitle">Reps</h3>
-    <p class="sub" id="sheetSub">Reps per set · drag the wheel or tap a preset</p>
-    <div class="dial" id="dReps"></div>
+    <p class="sub" id="sheetSub">Reps per set · scroll the wheel or tap a preset</p>
+    <div class="wheel big" id="wReps"></div>
     <div class="chips" id="chips"></div>
     <div class="row"><button class="btn" id="repCancel">Cancel</button><button class="btn go" id="repSet">Set reps</button></div>
   </div>
@@ -239,16 +229,16 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   function tgt(e){return cfg.sets+"×"+qty(e)+(e.timed?"s":"")}
 
   /* ---------- Settings ---------- */
-  cfg={day:0,sets:3,rest:30,plank:0,pace:3,ready:10,voice:true,reps:{},v:4};
-  try{var sv=JSON.parse(localStorage.getItem("kbt")||"null");if(sv){for(var k in cfg){if(sv[k]!==undefined)cfg[k]=sv[k]}cfg.v=4}}catch(e){}
-  if(!(cfg.pace>=1&&cfg.pace<=10&&cfg.pace%1===0))cfg.pace=3;
+  cfg={day:0,sets:3,rest:30,plank:0,pace:3,ready:10,voice:true,reps:{},v:5};
+  try{var sv=JSON.parse(localStorage.getItem("kbt")||"null");if(sv){for(var k in cfg){if(sv[k]!==undefined)cfg[k]=sv[k]}cfg.v=5}}catch(e){}
+  cfg.pace=Math.min(5,Math.max(0.1,Math.round((+cfg.pace||3)*10)/10));
   if(!(cfg.ready>=1&&cfg.ready<=60&&cfg.ready%1===0))cfg.ready=10;
   if(!(cfg.plank===0||(cfg.plank>=5&&cfg.plank<=300&&cfg.plank%5===0)))cfg.plank=0;
   function save(){try{localStorage.setItem("kbt",JSON.stringify(cfg))}catch(e){}}
   /* apply saved rep overrides on top of the plan defaults */
   Object.keys(cfg.reps||{}).forEach(function(key){
     var p=key.split(":"),d=PLAN[+p[0]],n=+cfg.reps[key];
-    if(d&&d.ex[+p[1]]&&n>=1&&n<=(d.ex[+p[1]].timed?300:99))d.ex[+p[1]].reps=n;
+    if(d&&d.ex[+p[1]]&&n>=1&&n<=(d.ex[+p[1]].timed?300:100))d.ex[+p[1]].reps=n;
   });
 
   /* ---------- Voice ---------- */
@@ -261,45 +251,53 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   }
   function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
 
-  /* ---------- Dials ---------- */
-  var C=2*Math.PI*48;
-  function Dial(root,o){
-    root.innerHTML='<svg viewBox="0 0 120 120" role="slider" tabindex="0" aria-label="'+o.label+'" aria-valuemin="'+o.min+'" aria-valuemax="'+o.max+'">'
-      +'<circle class="trk" cx="60" cy="60" r="48"/>'
-      +'<circle class="arc" cx="60" cy="60" r="48" transform="rotate(-90 60 60)"/>'
-      +'<circle cx="60" cy="60" r="37" fill="url(#fg)" stroke="#0e1217" stroke-width="1.5"/>'
-      +'<text class="val" x="60" y="66" text-anchor="middle"></text>'
-      +'<text class="unit" x="60" y="82" text-anchor="middle"></text>'
-      +'<g class="knob"><circle r="10" fill="url(#kg)"/><circle r="3.6" class="dot"/></g></svg>'
-      +'<div class="dl">'+o.label+'</div><div class="dc">'+o.cap+'</div>'
-      +'<div class="pm"><button class="btn mini" aria-label="Less">−</button><button class="btn mini" aria-label="More">+</button></div>';
-    var svg=root.querySelector("svg"),arc=root.querySelector(".arc"),val=root.querySelector(".val"),unitEl=root.querySelector(".unit"),knob=root.querySelector(".knob");
-    var steps=(o.max-o.min)/o.step, idx=Math.round((o.get()-o.min)/o.step);
-    function draw(){
-      var v=o.min+idx*o.step, f=idx/steps, a=f*2*Math.PI;
-      var z=(o.zero&&v===o.min);val.textContent=z?o.zero:v;unitEl.textContent=z?"AUTO":o.unit;val.setAttribute("font-size",z?"22":"");svg.setAttribute("aria-valuenow",v);
-      arc.setAttribute("stroke-dasharray",(f*C)+" "+C);
-      knob.setAttribute("transform","translate("+(60+48*Math.sin(a)).toFixed(2)+" "+(60-48*Math.cos(a)).toFixed(2)+")");
+  /* ---------- Drum wheels (iPhone style, looping) ---------- */
+  function nums(a,b,step){var o=[];for(var v=a;v<=b;v+=step)o.push(String(v));return o}
+  function Wheel(root,labels,start,label,onChange){
+    var ITEM=44,N=labels.length,COPIES=7,MID=3,cur=start,raf=0,t=0;
+    root.innerHTML='<div class="wscroll" tabindex="0" role="spinbutton" aria-label="'+label+'"></div><div class="wband"></div>';
+    var sc=root.firstChild,h='';
+    for(var c=0;c<COPIES;c++){for(var i=0;i<N;i++){h+='<div class="wi'+(isNaN(+labels[i])?' txt':'')+'" data-a="'+(c*N+i)+'">'+labels[i]+'</div>'}}
+    sc.innerHTML=h;
+    var els=sc.children;
+    var selEl=null;
+    function paint(){
+      var st=sc.scrollTop,c0=Math.round(st/ITEM);
+      for(var i=Math.max(0,c0-3);i<=Math.min(els.length-1,c0+3);i++){
+        var o=(i*ITEM-st)/ITEM,a=Math.min(Math.abs(o),2.4);
+        els[i].style.transform='perspective(280px) rotateX('+Math.max(-70,Math.min(70,-o*32)).toFixed(1)+'deg) scale('+(1-a*0.1).toFixed(3)+')';
+        els[i].style.opacity=Math.max(0.15,1-a*0.38).toFixed(2);
+        if(a<0.5){if(selEl&&selEl!==els[i])selEl.classList.remove('sel');selEl=els[i];els[i].classList.add('sel')}
+        else els[i].classList.remove('sel');
+      }
     }
-    function set(n,fire){n=Math.max(0,Math.min(steps,n));if(n!==idx){idx=n;draw();if(fire!==false){o.set(o.min+idx*o.step)}}}
-    function fromPointer(e){
-      var r=svg.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);
-      var deg=(Math.atan2(dx,-dy)*180/Math.PI+360)%360, n=Math.round(deg/360*steps);
-      if(idx>steps*.75&&n<steps*.25)n=steps; else if(idx<steps*.25&&n>steps*.75)n=0;
-      set(n);
+    function setAria(){
+      sc.setAttribute('aria-valuemin','0');sc.setAttribute('aria-valuemax',String(N-1));
+      sc.setAttribute('aria-valuenow',String(cur));sc.setAttribute('aria-valuetext',String(labels[cur]));
     }
-    var drag=false;
-    svg.addEventListener("pointerdown",function(e){drag=true;try{svg.setPointerCapture(e.pointerId)}catch(x){}fromPointer(e);e.preventDefault()});
-    svg.addEventListener("pointermove",function(e){if(drag)fromPointer(e)});
-    ["pointerup","pointercancel"].forEach(function(t){svg.addEventListener(t,function(){drag=false})});
-    svg.addEventListener("keydown",function(e){
-      if(e.key==="ArrowRight"||e.key==="ArrowUp"){set(idx+1);e.preventDefault()}
-      if(e.key==="ArrowLeft"||e.key==="ArrowDown"){set(idx-1);e.preventDefault()}
+    function goAbs(a,smooth){
+      a=Math.max(0,Math.min(els.length-1,a));
+      try{sc.scrollTo({top:a*ITEM,behavior:smooth?'smooth':'auto'})}catch(e){sc.scrollTop=a*ITEM}
+    }
+    function commit(){
+      var abs=Math.round(sc.scrollTop/ITEM),m=((abs%N)+N)%N;
+      if(abs<2*N||abs>=5*N){sc.scrollTop=(MID*N+m)*ITEM;paint()}
+      if(m!==cur){cur=m;setAria();onChange(m)}
+    }
+    sc.addEventListener('scroll',function(){
+      if(!raf)raf=requestAnimationFrame(function(){raf=0;paint()});
+      clearTimeout(t);t=setTimeout(commit,140);
+    },{passive:true});
+    sc.addEventListener('click',function(e){var w=e.target.closest('.wi');if(w)goAbs(+w.getAttribute('data-a'),true)});
+    sc.addEventListener('keydown',function(e){
+      var abs=Math.round(sc.scrollTop/ITEM);
+      if(e.key==='ArrowUp'){e.preventDefault();goAbs(abs-1,true)}
+      else if(e.key==='ArrowDown'){e.preventDefault();goAbs(abs+1,true)}
     });
-    var b=root.querySelectorAll(".pm .btn");
-    b[0].addEventListener("click",function(){set(idx-1)});
-    b[1].addEventListener("click",function(){set(idx+1)});
-    draw();
+    function init(){sc.scrollTop=(MID*N+cur)*ITEM;paint();setAria()}
+    init();
+    if(window.requestAnimationFrame)window.requestAnimationFrame(init);
+    return {set:function(m){cur=m;sc.scrollTop=(MID*N+m)*ITEM;paint();setAria()}};
   }
 
   /* ---------- Session state ---------- */
@@ -323,18 +321,15 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   }
   function startRest(){
     S.phase="rest";S.remain=cfg.rest;S.total=cfg.rest;S.last=-1;
-    say("Rest "+cfg.rest+" seconds");
+    say("Set "+S.set+" complete. Rest "+cfg.rest+" seconds");
   }
+  /* circuit: every exercise once per round, then rest, then the next round */
+  function nextRound(){S.set++;S.ex=0;S.status=[];startWork()}
   function finishSet(){
-    buzz(60);
-    if(S.set<cfg.sets){
-      if(cfg.rest>0)startRest(); else {S.set++;startWork()}
-    }else completeEx("done");
-  }
-  function completeEx(st){
-    S.status[S.ex]=st;
-    if(S.ex>=plan().length-1){S.phase="done";say("Workout complete. Nice work.");unlock();buzz(200)}
-    else{S.ex++;S.set=1;startBlank("Next")}
+    buzz(60);S.status[S.ex]="done";
+    if(S.ex<plan().length-1){S.ex++;startBlank("Next")}
+    else if(S.set<cfg.sets){if(cfg.rest>0)startRest();else nextRound()}
+    else{S.phase="done";say("Workout complete. Nice work.");unlock();buzz(200)}
   }
   function resetAll(){
     S.phase="idle";S.ex=0;S.set=1;S.status=[];S.paused=false;S.remain=0;S.repsLeft=0;S.armed=false;clearTimeout(S.armT);
@@ -367,23 +362,34 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     if(S.phase==="done")return;
     S.paused=false;
     if(S.phase==="work")finishSet();
-    else if(S.phase==="rest"){S.set++;startWork()}
+    else if(S.phase==="rest")nextRound();
     else if(S.phase==="blank")startWork();
     render(true);
   }
   function back(){
+    var last=plan().length-1;
     if(S.phase==="idle"){S.ex=Math.max(0,S.ex-1);render(true);return}
     S.paused=false;
-    if(S.phase==="done"){S.ex=plan().length-1}else S.ex=Math.max(0,S.ex-1);
-    for(var i=S.ex;i<S.status.length;i++)S.status[i]=undefined;
-    S.set=1;lock();startWork();render(true);
+    if(S.phase==="done"||S.phase==="rest")S.ex=last;
+    else if(S.ex>0)S.ex--;
+    else if(S.set>1){S.set--;S.ex=last}
+    for(var k=0;k<=last;k++)S.status[k]=(k<S.ex)?"done":undefined;
+    lock();startWork();render(true);
   }
   function jump(i){
     for(var j=i;j<plan().length;j++)S.status[j]=undefined;
-    S.ex=i;S.set=1;
+    S.ex=i;
     if(S.phase!=="idle"&&S.phase!=="done"){S.paused=false;startWork()}
-    else if(S.phase==="done"){S.phase="idle"}
+    else if(S.phase==="done"){S.phase="idle";S.set=1}
     render(true);
+  }
+
+  /* very fast paces cannot be spoken rep by rep, so thin out the voice */
+  function speakRep(n){
+    var p=cfg.pace;
+    if(p<0.5){if(n>3&&n%5!==0)return}
+    else if(p<0.8){if(n>5&&n%2===1)return}
+    say(n,true);
   }
 
   /* ---------- Tick ---------- */
@@ -404,9 +410,13 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
           }
         }else if(!S.started){
           if(S.repAcc>=0){S.started=true;S.repAcc=0;say(S.repsLeft,true)}
-        }else if(S.repAcc>=tempo){
-          S.repAcc-=tempo;S.repsLeft--;
-          if(S.repsLeft<=0){S.repsLeft=0;finishSet()}else say(S.repsLeft,true);
+        }else{
+          var guard=0;
+          while(S.repAcc>=tempo&&S.phase==="work"&&guard++<30){
+            S.repAcc-=tempo;S.repsLeft--;
+            if(S.repsLeft<=0){S.repsLeft=0;finishSet();break}
+            speakRep(S.repsLeft);
+          }
         }
       }else if(S.phase==="rest"||S.phase==="blank"){
         S.remain-=dt/1000;
@@ -417,7 +427,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
           if(s<=lim||(S.phase==="rest"&&s%10===0&&s<S.total))say(s,true);
         }
         if(S.remain<=0){
-          if(S.phase==="rest"){S.set++;startWork()}else startWork();
+          if(S.phase==="rest")nextRound();else startWork();
         }
       }
     }
@@ -461,20 +471,28 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   /* ---------- Ticker tape ---------- */
   var tapeX=0,tapeW=600,tickEl=document.querySelector(".tick"),lastF=0;
   function chip(c,t){return '<i class="tg '+c+'">'+t+'</i>'}
+  function qchip(e){return '<i class="tg q">'+lbl(e).toUpperCase()+'</i>'}
+  /* what comes after the current exercise: the next exercise, the first move of the next set, or Finish */
+  function nextPart(){
+    var L=plan();
+    if(S.ex<L.length-1)return '<span>'+L[S.ex+1].name+'</span>'+qchip(L[S.ex+1]);
+    if(S.set<cfg.sets)return '<span>Set '+(S.set+1)+' · '+L[0].name+'</span>'+qchip(L[0]);
+    return '<span>Finish</span>';
+  }
   function tapeSeg(ex,nx,p){
-    var d=PLAN[cfg.day],h="",next;
+    var L=plan(),d=PLAN[cfg.day],h="",arrow='<i class="arr">▸</i>'+chip("next","Next");
     if(p==="idle"){
       h=chip("",("Day "+(cfg.day+1)))+'<span>'+d.name.replace(/^Day \d · /,"")+'</span><em class="dia">◆</em>'
-       +chip("go","First")+'<span>'+plan()[0].name+' · '+lbl(plan()[0])+'</span><em class="dia">◆</em>'
-       +chip("",cfg.sets+(cfg.sets===1?" set":" sets"))+'<span>'+plan().length+' exercises</span>';
+       +chip("go","First")+'<span>'+L[S.ex].name+'</span>'+qchip(L[S.ex])+'<em class="dia">◆</em>'
+       +chip("",cfg.sets+(cfg.sets===1?" set":" sets"))+'<span>'+L.length+' exercises</span>';
     }else if(p==="done"){
-      h=chip("go","Done")+'<span>Workout complete</span><em class="dia">◆</em>'+chip("",cfg.sets+(cfg.sets===1?" set":" sets"))+'<span>'+plan().length+' exercises finished</span>';
+      h=chip("go","Done")+'<span>Workout complete</span><em class="dia">◆</em>'+chip("",cfg.sets+(cfg.sets===1?" set":" sets"))+'<span>'+L.length+' exercises finished</span>';
+    }else if(p==="work"){
+      h=chip("now","Now")+'<span>'+ex.name+'</span>'+qchip(ex)+'<span class="mut">set '+S.set+'/'+cfg.sets+'</span>'+arrow+nextPart();
+    }else if(p==="rest"){
+      h=chip("rest","Rest")+'<span>'+cfg.rest+' sec</span>'+arrow+nextPart();
     }else{
-      next=(S.set<cfg.sets)?(ex.name+' · set '+(S.set+1)+' of '+cfg.sets):(nx?(nx.name+' · '+lbl(nx)):"Finish");
-      if(p==="work")h=chip("now","Now")+'<span>'+ex.name+' · '+lbl(ex)+' · set '+S.set+'/'+cfg.sets+'</span>';
-      else if(p==="rest")h=chip("rest","Rest")+'<span>'+cfg.rest+' sec</span>';
-      else{h=chip("rdy","Get ready")+'<span>'+ex.name+' · '+lbl(ex)+'</span>';next=null}
-      if(next)h+='<i class="arr">▸</i>'+chip("next","Next")+'<span>'+next+'</span>';
+      h=chip("rdy","Get ready")+'<span>'+ex.name+'</span>'+qchip(ex)+arrow+nextPart();
     }
     return '<span class="seg">'+h+'<em class="dia">◆</em></span>';
   }
@@ -499,10 +517,12 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     items.forEach(function(e,i){
       var st=S.status[i],c=st==="done"?"done":st==="skipped"?"skipped":"";
       if(i===S.ex&&S.phase!=="done"&&!c)c="cur";
-      var right=(i===S.ex&&(S.phase==="work"||S.phase==="rest")&&!st)?"SET "+S.set+"/"+cfg.sets:tgt(e);
+      var right=(i===S.ex&&(S.phase==="work"||S.phase==="blank")&&!st)?"SET "+S.set+"/"+cfg.sets:tgt(e);
       h+='<li class="'+c+'" data-i="'+i+'"><span class="n"><span>'+(i+1)+'</span></span><span class="t">'+e.name+'</span><span class="r">'+right+'</span></li>';
     });
     listEl.innerHTML=h;
+    var nd=0;items.forEach(function(e,i){if(S.status[i]==="done")nd++});
+    el("sinfo").textContent=S.phase==="idle"?cfg.sets+(cfg.sets===1?" set":" sets"):(S.phase==="done"?"All "+cfg.sets+" sets done":"Set "+S.set+" of "+cfg.sets+" · "+nd+"/"+items.length);
   }
   listEl.addEventListener("click",function(e){
     var li=e.target.closest("li");if(!li)return;
@@ -512,21 +532,24 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
   /* ---------- Reps popup ---------- */
   var sheet=el("sheet"),repIdx=0,repTmp=10,resumeAfter=false;
-  var PRESETS=[5,6,8,10,12,15,20,25],PRESETS_T=[20,30,40,45,60,90,120,180],repTimed=false;
-  function drawRepDial(){
-    if(repTimed)Dial(el("dReps"),{label:"SECONDS",unit:"HOLD",cap:"",min:5,max:300,step:5,get:function(){return repTmp},set:function(v){repTmp=v;markChips()}});
-    else Dial(el("dReps"),{label:"REPS",unit:"PER SET",cap:"",min:1,max:50,step:1,get:function(){return repTmp},set:function(v){repTmp=v;markChips()}});
+  var PRESETS=[6,8,10,12,15,20,25],PRESETS_T=[20,30,40,45,60,90,120],repTimed=false;
+  var repWheel=null;
+  function drawRepWheel(){
+    var labels=repTimed?nums(5,300,5):nums(1,100,1);
+    var idx=repTimed?Math.max(0,Math.min(59,Math.round(repTmp/5)-1)):Math.max(0,Math.min(99,repTmp-1));
+    repTmp=repTimed?(idx+1)*5:idx+1;
+    repWheel=Wheel(el("wReps"),labels,idx,repTimed?"Seconds":"Reps",function(i){repTmp=repTimed?(i+1)*5:i+1;markChips()});
   }
   function markChips(){Array.prototype.forEach.call(el("chips").children,function(b){b.classList.toggle("on",+b.getAttribute("data-r")===repTmp)})}
   function openReps(i){
     repIdx=i;repTmp=plan()[i].reps;repTimed=!!plan()[i].timed;
     el("sheetTitle").textContent=plan()[i].name;
-    el("sheetSub").textContent=repTimed?(cfg.plank>0&&plan()[i].plank?"Hold time · the Plank wheel is set to "+cfg.plank+"s and overrides this":"Hold time in seconds · drag the wheel or tap a preset"):"Reps per set · drag the wheel or tap a preset";
+    el("sheetSub").textContent=repTimed?(cfg.plank>0&&plan()[i].plank?"Hold time · the Plank wheel is set to "+cfg.plank+"s and overrides this":"Hold time in seconds · scroll the wheel or tap a preset"):"Reps per set · scroll the wheel or tap a preset";
     el("repSet").textContent=repTimed?"Set seconds":"Set reps";
     var h="";(repTimed?PRESETS_T:PRESETS).forEach(function(r){h+='<button class="btn" data-r="'+r+'">'+r+(repTimed?"s":"")+'</button>'});
     el("chips").innerHTML=h;
-    drawRepDial();markChips();
     resumeAfter=false;
+    sheet.hidden=false;drawRepWheel();markChips();
     if(S.phase!=="idle"&&S.phase!=="done"&&!S.paused){S.paused=true;resumeAfter=true;try{speechSynthesis.cancel()}catch(e){}}
     sheet.hidden=false;render(true);
   }
@@ -535,7 +558,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     if(resumeAfter){S.paused=false;resumeAfter=false}
     render(true);
   }
-  el("chips").addEventListener("click",function(e){var b=e.target.closest("[data-r]");if(!b)return;repTmp=+b.getAttribute("data-r");drawRepDial();markChips()});
+  el("chips").addEventListener("click",function(e){var b=e.target.closest("[data-r]");if(!b)return;repTmp=+b.getAttribute("data-r");if(repWheel)repWheel.set(repTimed?repTmp/5-1:repTmp-1);markChips()});
   el("repCancel").addEventListener("click",closeReps);
   el("repSet").addEventListener("click",function(){
     plan()[repIdx].reps=repTmp;
@@ -558,12 +581,13 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   function voiceUI(){el("voiceBtn").textContent=cfg.voice?"Voice on":"Voice off";el("voiceBtn").classList.toggle("on",cfg.voice)}
   el("voiceBtn").addEventListener("click",function(){cfg.voice=!cfg.voice;save();voiceUI();if(cfg.voice)say("Voice on");else{try{speechSynthesis.cancel()}catch(e){}}});
 
-  Dial(el("dSets"),{label:"SETS",unit:"SETS",cap:"per exercise",min:1,max:10,step:1,get:function(){return cfg.sets},set:function(v){cfg.sets=v;save()}});
-  Dial(el("dRest"),{label:"REST",unit:"SEC",cap:"between sets",min:0,max:300,step:5,get:function(){return cfg.rest},set:function(v){cfg.rest=v;save()}});
-  Dial(el("dPlank"),{label:"PLANK",unit:"SEC",cap:"hold time",zero:"PLAN",min:0,max:300,step:5,get:function(){return cfg.plank},set:function(v){cfg.plank=v;save();render(true)}});
-
-  Dial(el("dPace"),{label:"REP PACE",unit:"SEC/REP",cap:"seconds per rep",min:1,max:10,step:1,get:function(){return cfg.pace},set:function(v){cfg.pace=v;save()}});
-  Dial(el("dReady"),{label:"GET READY",unit:"SEC",cap:"between exercises",min:1,max:60,step:1,get:function(){return cfg.ready},set:function(v){cfg.ready=v;save()}});
+  var setsL=nums(1,10,1),restL=nums(0,300,5),plankL=["Plan"].concat(nums(5,300,5)),readyL=nums(1,60,1),paceL=[];
+  for(var q=1;q<=50;q++)paceL.push((q/10).toFixed(1));
+  Wheel(el("wSets"),setsL,cfg.sets-1,"Number of sets",function(i){cfg.sets=i+1;save();render(true)});
+  Wheel(el("wRest"),restL,cfg.rest/5,"Rest seconds",function(i){cfg.rest=i*5;save();render(true)});
+  Wheel(el("wPlank"),plankL,cfg.plank/5,"Plank seconds",function(i){cfg.plank=i*5;save();render(true)});
+  Wheel(el("wPace"),paceL,Math.round(cfg.pace*10)-1,"Seconds per rep",function(i){cfg.pace=(i+1)/10;save();render(true)});
+  Wheel(el("wReady"),readyL,cfg.ready-1,"Get ready seconds",function(i){cfg.ready=i+1;save();render(true)});
 
   /* main button: START, then tap once to arm STOP, tap again to end (same as Fight Camp) */
   function stopAll(){var was=S.phase;resetAll();render(true);buzz(80);if(was!=="idle")say("Stopped")}
